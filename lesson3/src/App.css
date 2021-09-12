@@ -11,11 +11,11 @@
   text-align: center;
 }
 
-.App-topic {
+.App-topic a {
   color:darkred;
 }
 
-.App-topic:hover {
+.App-topic a:hover {
   color: blue;
 }
 
