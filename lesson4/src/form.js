@@ -21,7 +21,7 @@ export const Form = ({onSubmit}) => {
     };
 
     return (
-        <form onSubmit={addMessage} onClick={addMessage}>
+        <form onSubmit={addMessage}>
             <TextField 
                 value={value} 
                 onChange={inputChange} 
@@ -29,6 +29,7 @@ export const Form = ({onSubmit}) => {
                 placeholder="Input your message"
             />
             <Button 
+                type="submit"
                 variant="contained" 
                 color="primary">Add message
             </Button>

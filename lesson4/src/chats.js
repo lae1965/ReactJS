@@ -67,14 +67,14 @@ function Chats() {
 
     const delChat = () => {
         setChatList(() => {
-            const newList = chatList;
+            const newList = [...chatList];
             const find = newList.findIndex(el => el.id === chatId);
             newList.splice(find, 1);
             console.log(newList);
             return newList;
         });
         setMessageList(() => {
-            const newList = messageList;
+            const newList = {...messageList};
             delete newList[chatId];
             console.log(newList);
             return newList;
