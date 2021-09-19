@@ -1,0 +1,33 @@
+.App {
+  display: flex;
+}
+
+.App-left {
+  width: max-content;
+}
+
+.App-heading {
+  color: darkred;
+  text-align: center;
+}
+
+.App-topic a {
+  color:darkred;
+}
+
+.App-topic a:hover {
+  color: blue;
+}
+
+.App-header {
+  font-size: 14px;
+  color: whitesmoke;
+  width: max-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+ul {
+  list-style-type: none;
+}
+
