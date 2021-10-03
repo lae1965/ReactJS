@@ -1,26 +1,32 @@
+import { ref, set, onValue } from "@firebase/database";
+
+import { db } from "../../services/firebase";
 import { AUTORS } from "../../Util/constants";
 
-export const ADD_MESSAGE = 'MESSAGE::ADD_MESSAGE';
-export const DELETE_CHAT_MESSAGES = 'MESSAGE::DELETE_CHAT_MESSAGES';
+export const GET_MESSAGELIST = 'MESSAGE::GET_MESSAGELIST';
 
-export const addMessage = (text, autor, chatId) => ({
-    type: ADD_MESSAGE,
-    payload: {
-        text,
-        autor,
-        chatId,
-    },
+const getMessageList = (messageList) => ({
+    type: GET_MESSAGELIST,
+    payload: messageList,
 });
-export const deleteChatMessages = (chatId) => ({
-    type: DELETE_CHAT_MESSAGES,
-    payload: chatId,
-});
-export const addMessageWithThunk = (text, autor, chatId) => (dispatch) => {
-    dispatch(addMessage(text, autor, chatId));
-    if (autor === AUTORS.HUMAN) {
-        setTimeout(() => {
-            dispatch(addMessage('Message received', AUTORS.BOT, chatId));
-        }, 1000);
-    }
-}
 
+const addMessageToDb = (text, autor, chatId) => () => {
+    set(ref(db, `chats/${chatId}/messages/message-${Date.now()}`), {
+        text: text,
+        autor: autor, 
+    });
+};
+
+export const addMessageToDbWithAnswer = (text, chatId) => (dispatch) => {
+    dispatch(addMessageToDb(text, AUTORS.HUMAN, chatId));
+    setTimeout(() => {
+        dispatch(addMessageToDb('Message received', AUTORS.BOT, chatId));
+    }, 1500);
+};
+
+export const getMessageListFromDb = (chatId) => (dispatch) => {
+    const unsubscribe = onValue(ref(db, `chats/${chatId}/messages`), (snapshot) => {
+        dispatch(getMessageList(Object.values(snapshot.val() || {})));
+    });
+    return unsubscribe;
+};

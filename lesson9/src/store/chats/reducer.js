@@ -1,4 +1,4 @@
-import { ADD_CHAT, DELETE_CHAT } from "./action";
+import { GET_CHATLIST } from "./action";
 
 const initialState = {
     chatList: [],
@@ -6,21 +6,10 @@ const initialState = {
 
 export const chatsReducer = (state = initialState, { type, payload }) => {
     switch (type) {
-        case ADD_CHAT:
+        case GET_CHATLIST:
             return {
                 ...state,
-                chatList: [...state.chatList, {
-                    topic: payload.name, 
-                    id: payload.id,
-                }],
-            };
-        case DELETE_CHAT:
-            const newChatList = [...state.chatList];
-            const findIndex = newChatList.findIndex(el => el.id === payload);
-            newChatList.splice(findIndex, 1);
-            return {
-                ...state,
-                chatList: newChatList,
+                chatList: payload,
             };
         default:
             return state;

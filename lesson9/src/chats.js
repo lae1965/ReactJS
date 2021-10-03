@@ -1,46 +1,55 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Redirect, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@material-ui/core';
 
 import './App.css';
 import { Message } from './Message';
-import { AUTORS } from './Util/constants';
 import { Form } from './form';
 import { ChatList } from './chatslist';
-import { addChat, deleteChat } from './store/chats/action';
-import { addMessage, addMessageWithThunk, deleteChatMessages } from './store/messages/action';
+import { addChatToDb, deleteChatFromDb, getChatListFromDb } from './store/chats/action';
+import { addMessageToDbWithAnswer, getMessageListFromDb } from './store/messages/action';
 import { selectChatList } from './store/chats/selectors';
 import { selectMessageList } from './store/messages/selectors';
+import { persistor } from './store';
 
 function Chats() {
+    persistor.purge();
     const { chatId } = useParams();
+
+    const unsubscribeRef = useRef(null);
     
-    const messageList = useSelector(selectMessageList);
     const chatList = useSelector(selectChatList);
+    const messageList = useSelector(selectMessageList);
+
     const dispatch = useDispatch();
 
-    const handleAddMessage = useCallback((value) => {
-        dispatch(addMessageWithThunk(value, AUTORS.HUMAN, chatId));
-    }, [dispatch, chatId]);
+    useEffect(() => {
+        dispatch(getChatListFromDb());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (unsubscribeRef.current) unsubscribeRef.current();
+
+        const unsubscribe = dispatch(getMessageListFromDb(chatId));
+        dispatch(getMessageListFromDb(chatId));
+        unsubscribeRef.current = unsubscribe;
+        return unsubscribe;
+    }, [chatId, dispatch]);
 
     const handleAddChat = useCallback(() => {
-        let newId;
-        do {
-            newId = `chat-${parseInt(Math.random()*1000)}`;
-            // eslint-disable-next-line
-        } while (chatList.length !== 0 && !!chatList.find(el => el.id === newId));
+        dispatch(addChatToDb(chatList));
+    }, [chatList, dispatch]);
 
-        dispatch(addChat(prompt("A topic name of the new chat"), newId));
-        dispatch(addMessage('', '', newId));
-    }, [dispatch, chatList]);
+    const handleAddMessage = useCallback((value) => {
+        dispatch(addMessageToDbWithAnswer(value, chatId));
+    }, [chatId, dispatch]);
 
     const handleDeleteChat = useCallback(() => {
-        dispatch(deleteChat(chatId));
-        dispatch(deleteChatMessages(chatId));
+        dispatch(deleteChatFromDb(chatId));
     }, [dispatch, chatId]);
 
-    if (!!chatId && messageList[chatId] === undefined) return <Redirect to="/chats"/>
+    if (!!chatId && !chatList.find((el) => el.id ===chatId)) return <Redirect to="/chats"/>;
 
     return (
         <div className="App">
@@ -54,7 +63,7 @@ function Chats() {
                 {!!chatId && 
                     <>
                         <Form onSubmit={handleAddMessage}></Form>        
-                        {messageList[chatId].map((message, i) => 
+                        {(messageList || []).map((message, i) => 
                             <Message 
                                 key={i} 
                                 text={message.text} 

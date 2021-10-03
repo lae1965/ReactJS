@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export const Home = ({onLogin}) => {
+export const Home = ({ onLogin, onSignUp }) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
 
@@ -16,12 +16,16 @@ export const Home = ({onLogin}) => {
         ev.preventDefault();
         setLogin('');
         setPassword('');
-        onLogin();
+        if(!!onLogin) {
+            onLogin(login, password);
+        } else {
+            onSignUp(login, password);
+        }
     };
 
     return (
         <>
-            <h3>This is home page</h3>
+            <h3>{!!onLogin ? 'Login' : 'SignUp'}</h3>
             <form onSubmit={handleSubmit}>
                 <input type="text" value={login} onChange={handleLoginSet} />    
                 <input type="password" value={password} onChange={handleSetPassword} />    

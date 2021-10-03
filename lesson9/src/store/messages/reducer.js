@@ -1,4 +1,4 @@
-import { ADD_MESSAGE, DELETE_CHAT_MESSAGES } from "./action";
+import { GET_MESSAGELIST } from "./action";
 
 export const initialState = {
     messageList: {},
@@ -6,25 +6,11 @@ export const initialState = {
 
 export const messagesReduser = (state = initialState, {type, payload}) => {
     switch (type) {
-        case ADD_MESSAGE:
+        case GET_MESSAGELIST:
             return {
                 ...state,
-                messageList: {
-                    ...state.messageList,
-                    [payload.chatId]:
-                        (!!payload.autor) ? 
-                        ([...(state.messageList[payload.chatId] || []), 
-                            {
-                                text: payload.text,
-                                autor: payload.autor,
-                            },
-                        ]) : [],
-                }
-            }
-        case DELETE_CHAT_MESSAGES:
-            const newState = {...state};
-            delete newState.messageList[payload];
-            return newState;    
+                messageList: payload,
+            };    
         default:
             return state;    
     }
